@@ -7,6 +7,4 @@
 /dataSources/
 /dataSources.local.xml
 
-/go.iml
-/modules.xml
-/vcs.xml
+/.idea
