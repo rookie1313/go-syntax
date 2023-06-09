@@ -1,23 +1,28 @@
 package main
 
-import "fmt"
-
-type kelvin float64
-type celsius float64
+import (
+	"fmt"
+	"os"
+)
 
 func main() {
-	var k kelvin = 294.0
-	var c celsius
-
-	c = kelvinToCelsius(k)
-	c = k.celsius()
-
-	fmt.Printf("%v\n", c)
-}
-func kelvinToCelsius(k kelvin) celsius {
-	return celsius(k - 273.15)
+	isPanic := throwsPanic(f)
+	fmt.Println(isPanic)
 }
 
-func (k kelvin) celsius() celsius {
-	return celsius(k - 273.5)
+func f() {
+	var user = os.Getenv("USER")
+	if user == "pro" {
+		panic("test for panic")
+	}
+}
+
+func throwsPanic(f func()) (b bool) {
+	defer func() {
+		if x := recover(); x != nil {
+			b = true
+		}
+	}()
+	f()
+	return
 }
