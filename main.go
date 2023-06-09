@@ -1,28 +1,22 @@
 package main
 
-import (
-	"fmt"
-	"os"
-)
+import "fmt"
+
+type Human struct {
+	name  string
+	age   int
+	phone string
+}
+
+type Employee struct {
+	Human
+	speciality string
+	phone      string
+}
 
 func main() {
-	isPanic := throwsPanic(f)
-	fmt.Println(isPanic)
-}
+	Bob := Employee{Human{"Bob", 34, "777-444-XXXX"}, "Designer", "333-222"}
+	fmt.Println("Bob's work phone is:", Bob.phone)
 
-func f() {
-	var user = os.Getenv("USER")
-	if user == "pro" {
-		panic("test for panic")
-	}
-}
-
-func throwsPanic(f func()) (b bool) {
-	defer func() {
-		if x := recover(); x != nil {
-			b = true
-		}
-	}()
-	f()
-	return
+	fmt.Println("Bob's personal phone is:", Bob.Human.phone)
 }
