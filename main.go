@@ -2,27 +2,48 @@ package main
 
 import (
 	"fmt"
-	"os"
+	"sync"
 )
 
 func main() {
-	isPanic := throwsPanic(f)
-	fmt.Println(isPanic)
-}
+	c := make(chan int, 100)
 
-func f() {
-	var user = os.Getenv("USER")
-	if user == "pro" {
-		panic("test for panic")
-	}
-}
-
-func throwsPanic(f func()) (b bool) {
-	defer func() {
-		if x := recover(); x != nil {
-			b = true
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+	//2 producers
+	go func() {
+		defer wg.Done()
+		for i := 0; i < 90; i++ {
+			c <- i
 		}
 	}()
-	f()
-	return
+	go func() {
+		defer wg.Done()
+		for i := 0; i < 10; i++ {
+			c <- i
+		}
+	}()
+
+	//for block main,so use struct{}
+	block := make(chan struct{}, 0)
+	//1 consumer
+	go func() {
+		sum := 0
+		for {
+			a, ok := <-c
+			if ok {
+				sum += a
+			} else {
+				break
+			}
+		}
+		fmt.Printf("sum is %d", sum)
+		//add element,the purpose is unblocking this channel
+		block <- struct{}{}
+	}()
+
+	wg.Wait()
+	close(c)
+	//if no element,block
+	<-block
 }
