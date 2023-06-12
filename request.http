@@ -1,0 +1,3 @@
+# for testing http request
+# GET http://localhost:8080/?id=123&name=felix&id=456&name=dave HTTP/1.1
+GET http://localhost:8080/urlinfo?userId=1,2&userName=john HTTP/1.1
