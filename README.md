@@ -1,1 +1,1 @@
-# go
+# go syntax attempt
