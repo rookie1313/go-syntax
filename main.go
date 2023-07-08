@@ -1,108 +1,58 @@
 package main
 
+import "container/list"
+
 func main() {
 }
 
-/* 列表类简易实现 */
-type myList struct {
-	numsCapacity int
-	nums         []int
-	numsSize     int
-	extendRatio  int
+/* 基于链表实现的栈 */
+type linkedListStack struct {
+	// 使用内置包 list 来实现栈
+	data *list.List
 }
 
-/* 构造函数 */
-func newMyList() *myList {
-	return &myList{
-		numsCapacity: 10,              // 列表容量
-		nums:         make([]int, 10), // 数组（存储列表元素）
-		numsSize:     0,               // 列表长度（即当前元素数量）
-		extendRatio:  2,               // 每次列表扩容的倍数
+/* 初始化栈 */
+func newLinkedListStack() *linkedListStack {
+	return &linkedListStack{
+		data: list.New(),
 	}
 }
 
-/* 获取列表长度（即当前元素数量） */
-func (l *myList) size() int {
-	return l.numsSize
+/* 入栈 */
+func (s *linkedListStack) push(value int) {
+	s.data.PushBack(value)
 }
 
-/*  获取列表容量 */
-func (l *myList) capacity() int {
-	return l.numsCapacity
+/* 出栈 */
+func (s *linkedListStack) pop() any {
+	if s.isEmpty() {
+		return nil
+	}
+	e := s.data.Back()
+	s.data.Remove(e)
+	return e.Value
 }
 
-/* 访问元素 */
-func (l *myList) get(index int) int {
-	// 索引如果越界则抛出异常，下同
-	if index < 0 || index >= l.numsSize {
-		panic("索引越界")
+/* 访问栈顶元素 */
+func (s *linkedListStack) peek() any {
+	if s.isEmpty() {
+		return nil
 	}
-	return l.nums[index]
+	e := s.data.Back()
+	return e.Value
 }
 
-/* 更新元素 */
-func (l *myList) set(num, index int) {
-	if index < 0 || index >= l.numsSize {
-		panic("索引越界")
-	}
-	l.nums[index] = num
+/* 获取栈的长度 */
+func (s *linkedListStack) size() int {
+	return s.data.Len()
 }
 
-/* 尾部添加元素 */
-func (l *myList) add(num int) {
-	// 元素数量超出容量时，触发扩容机制
-	if l.numsSize == l.numsCapacity {
-		l.extendCapacity()
-	}
-	l.nums[l.numsSize] = num
-	// 更新元素数量
-	l.numsSize++
+/* 判断栈是否为空 */
+func (s *linkedListStack) isEmpty() bool {
+	return s.data.Len() == 0
 }
 
-/* 中间插入元素 */
-func (l *myList) insert(num, index int) {
-	if index < 0 || index >= l.numsSize {
-		panic("索引越界")
-	}
-	// 元素数量超出容量时，触发扩容机制
-	if l.numsSize == l.numsCapacity {
-		l.extendCapacity()
-	}
-	// 将索引 index 以及之后的元素都向后移动一位
-	for j := l.numsSize - 1; j >= index; j-- {
-		l.nums[j+1] = l.nums[j]
-	}
-	l.nums[index] = num
-	// 更新元素数量
-	l.numsSize++
-}
-
-/* 删除元素 */
-func (l *myList) remove(index int) int {
-	if index < 0 || index >= l.numsSize {
-		panic("索引越界")
-	}
-	num := l.nums[index]
-	// 索引 i 之后的元素都向前移动一位
-	for j := index; j < l.numsSize-1; j++ {
-		l.nums[j] = l.nums[j+1]
-	}
-	// 更新元素数量
-	l.numsSize--
-	// 返回被删除元素
-	return num
-}
-
-/* 列表扩容 */
-func (l *myList) extendCapacity() {
-	// 新建一个长度为原数组 extendRatio 倍的新数组，并将原数组拷贝到新数组
-	l.nums = append(l.nums, make([]int, l.numsCapacity*(l.extendRatio-1))...)
-	// 更新列表容量
-	l.numsCapacity = len(l.nums)
-}
-
-/* 返回有效长度的列表 */
-func (l *myList) toArray() []int {
-	// 仅转换有效长度范围内的列表元素
-	return l.nums[:l.numsSize]
+/* 获取 List 用于打印 */
+func (s *linkedListStack) toList() *list.List {
+	return s.data
 }
