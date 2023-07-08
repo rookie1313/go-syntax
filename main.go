@@ -1,87 +1,108 @@
 package main
 
 func main() {
-	/* 初始化链表 1 -> 3 -> 2 -> 5 -> 4 */
-	// 初始化各个节点
-	n0 := NewListNode(1)
-	n1 := NewListNode(3)
-	n2 := NewListNode(2)
-	n3 := NewListNode(5)
-	n4 := NewListNode(4)
-	// 构建引用指向
-	n0.Next = n1
-	n1.Next = n2
-	n2.Next = n3
-	n3.Next = n4
-
 }
 
-/* 链表节点结构体 */
-type ListNode struct {
-	Val  int       // 节点值
-	Next *ListNode // 指向下一节点的指针（引用）
+/* 列表类简易实现 */
+type myList struct {
+	numsCapacity int
+	nums         []int
+	numsSize     int
+	extendRatio  int
 }
 
-// NewListNode 构造函数，创建一个新的链表
-func NewListNode(val int) *ListNode {
-	return &ListNode{
-		Val:  val,
-		Next: nil,
+/* 构造函数 */
+func newMyList() *myList {
+	return &myList{
+		numsCapacity: 10,              // 列表容量
+		nums:         make([]int, 10), // 数组（存储列表元素）
+		numsSize:     0,               // 列表长度（即当前元素数量）
+		extendRatio:  2,               // 每次列表扩容的倍数
 	}
 }
 
-/* 在链表的节点 n0 之后插入节点 P */
-func insertNode(n0 *ListNode, P *ListNode) {
-	P.Next = n0.Next
-	n0.Next = P
+/* 获取列表长度（即当前元素数量） */
+func (l *myList) size() int {
+	return l.numsSize
 }
 
-/* 删除链表的节点 n0 之后的首个节点 */
-func removeNode(n0 *ListNode) {
-	if n0.Next == nil {
-		return
+/*  获取列表容量 */
+func (l *myList) capacity() int {
+	return l.numsCapacity
+}
+
+/* 访问元素 */
+func (l *myList) get(index int) int {
+	// 索引如果越界则抛出异常，下同
+	if index < 0 || index >= l.numsSize {
+		panic("索引越界")
 	}
-	// n0 -> P -> n1
-	n0.Next = (n0.Next).Next
+	return l.nums[index]
 }
 
-/* 访问链表中索引为 index 的节点 */
-func access(head *ListNode, index int) *ListNode {
-	for i := 0; i < index; i++ {
-		if head == nil {
-			return nil
-		}
-		head = head.Next
+/* 更新元素 */
+func (l *myList) set(num, index int) {
+	if index < 0 || index >= l.numsSize {
+		panic("索引越界")
 	}
-	return head
+	l.nums[index] = num
 }
 
-/* 在链表中查找值为 target 的首个节点 */
-func findNode(head *ListNode, target int) int {
-	index := 0
-	for head != nil {
-		if head.Val == target {
-			return index
-		}
-		head = head.Next
-		index++
+/* 尾部添加元素 */
+func (l *myList) add(num int) {
+	// 元素数量超出容量时，触发扩容机制
+	if l.numsSize == l.numsCapacity {
+		l.extendCapacity()
 	}
-
-	return -1
+	l.nums[l.numsSize] = num
+	// 更新元素数量
+	l.numsSize++
 }
 
-/* 双向链表节点结构体 */
-type DoublyListNode struct {
-	Val  int             // 节点值
-	Next *DoublyListNode // 指向后继节点的指针（引用）
-	Prev *DoublyListNode // 指向前驱节点的指针（引用）
-}
-
-// NewDoublyListNode 初始化
-func NewDoublyListNode(val int) *DoublyListNode {
-	return &DoublyListNode{
-		Val:  val,
-		Next: nil,
-		Prev: nil,
+/* 中间插入元素 */
+func (l *myList) insert(num, index int) {
+	if index < 0 || index >= l.numsSize {
+		panic("索引越界")
 	}
+	// 元素数量超出容量时，触发扩容机制
+	if l.numsSize == l.numsCapacity {
+		l.extendCapacity()
+	}
+	// 将索引 index 以及之后的元素都向后移动一位
+	for j := l.numsSize - 1; j >= index; j-- {
+		l.nums[j+1] = l.nums[j]
+	}
+	l.nums[index] = num
+	// 更新元素数量
+	l.numsSize++
+}
+
+/* 删除元素 */
+func (l *myList) remove(index int) int {
+	if index < 0 || index >= l.numsSize {
+		panic("索引越界")
+	}
+	num := l.nums[index]
+	// 索引 i 之后的元素都向前移动一位
+	for j := index; j < l.numsSize-1; j++ {
+		l.nums[j] = l.nums[j+1]
+	}
+	// 更新元素数量
+	l.numsSize--
+	// 返回被删除元素
+	return num
+}
+
+/* 列表扩容 */
+func (l *myList) extendCapacity() {
+	// 新建一个长度为原数组 extendRatio 倍的新数组，并将原数组拷贝到新数组
+	l.nums = append(l.nums, make([]int, l.numsCapacity*(l.extendRatio-1))...)
+	// 更新列表容量
+	l.numsCapacity = len(l.nums)
+}
+
+/* 返回有效长度的列表 */
+func (l *myList) toArray() []int {
+	// 仅转换有效长度范围内的列表元素
+	return l.nums[:l.numsSize]
 }
