@@ -1,3 +1,3 @@
-module maps
+module property
 
 go 1.20
