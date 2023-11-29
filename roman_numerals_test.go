@@ -87,7 +87,7 @@ func ConvertToRoman(arabic int) string {
 }
 
 func TestConvertingToArabic(t *testing.T) {
-	for _, test := range cases[:10] {
+	for _, test := range cases {
 		t.Run(fmt.Sprintf("%q gets converted to %d", test.Roman, test.Arabic), func(t *testing.T) {
 			got := ConvertToArabic(test.Roman)
 			if got != test.Arabic {
@@ -108,7 +108,7 @@ func ConvertToArabic(roman string) int {
 				total += value
 				i++
 			} else {
-				total++
+				total += allRomanNumerals.ValueOf(symbol)
 			}
 
 		} else {
@@ -120,7 +120,8 @@ func ConvertToArabic(roman string) int {
 }
 
 func couldBeSubtractive(index int, currentSymbol byte, roman string) bool {
-	return index+1 < len(roman) && currentSymbol == 'I'
+	isSubtractiveSymbol := currentSymbol == 'I' || currentSymbol == 'X' || currentSymbol == 'C'
+	return index+1 < len(roman) && isSubtractiveSymbol
 }
 
 type RomanNumerals []RomanNumeral
