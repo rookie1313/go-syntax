@@ -27,42 +27,42 @@ var allRomanNumerals = RomanNumerals{
 	{1, "I"},
 }
 
-func TestRomanNumerals(t *testing.T) {
-	cases := []struct {
-		Arabic int
-		Roman  string
-	}{
-		{Arabic: 1, Roman: "I"},
-		{Arabic: 2, Roman: "II"},
-		{Arabic: 3, Roman: "III"},
-		{Arabic: 4, Roman: "IV"},
-		{Arabic: 5, Roman: "V"},
-		{Arabic: 6, Roman: "VI"},
-		{Arabic: 7, Roman: "VII"},
-		{Arabic: 8, Roman: "VIII"},
-		{Arabic: 9, Roman: "IX"},
-		{Arabic: 10, Roman: "X"},
-		{Arabic: 14, Roman: "XIV"},
-		{Arabic: 18, Roman: "XVIII"},
-		{Arabic: 20, Roman: "XX"},
-		{Arabic: 39, Roman: "XXXIX"},
-		{Arabic: 40, Roman: "XL"},
-		{Arabic: 47, Roman: "XLVII"},
-		{Arabic: 49, Roman: "XLIX"},
-		{Arabic: 50, Roman: "L"},
-		{Arabic: 100, Roman: "C"},
-		{Arabic: 90, Roman: "XC"},
-		{Arabic: 400, Roman: "CD"},
-		{Arabic: 500, Roman: "D"},
-		{Arabic: 900, Roman: "CM"},
-		{Arabic: 1000, Roman: "M"},
-		{Arabic: 1984, Roman: "MCMLXXXIV"},
-		{Arabic: 3999, Roman: "MMMCMXCIX"},
-		{Arabic: 2014, Roman: "MMXIV"},
-		{Arabic: 1006, Roman: "MVI"},
-		{Arabic: 798, Roman: "DCCXCVIII"},
-	}
+var cases = []struct {
+	Arabic int
+	Roman  string
+}{
+	{Arabic: 1, Roman: "I"},
+	{Arabic: 2, Roman: "II"},
+	{Arabic: 3, Roman: "III"},
+	{Arabic: 4, Roman: "IV"},
+	{Arabic: 5, Roman: "V"},
+	{Arabic: 6, Roman: "VI"},
+	{Arabic: 7, Roman: "VII"},
+	{Arabic: 8, Roman: "VIII"},
+	{Arabic: 9, Roman: "IX"},
+	{Arabic: 10, Roman: "X"},
+	{Arabic: 14, Roman: "XIV"},
+	{Arabic: 18, Roman: "XVIII"},
+	{Arabic: 20, Roman: "XX"},
+	{Arabic: 39, Roman: "XXXIX"},
+	{Arabic: 40, Roman: "XL"},
+	{Arabic: 47, Roman: "XLVII"},
+	{Arabic: 49, Roman: "XLIX"},
+	{Arabic: 50, Roman: "L"},
+	{Arabic: 100, Roman: "C"},
+	{Arabic: 90, Roman: "XC"},
+	{Arabic: 400, Roman: "CD"},
+	{Arabic: 500, Roman: "D"},
+	{Arabic: 900, Roman: "CM"},
+	{Arabic: 1000, Roman: "M"},
+	{Arabic: 1984, Roman: "MCMLXXXIV"},
+	{Arabic: 3999, Roman: "MMMCMXCIX"},
+	{Arabic: 2014, Roman: "MMXIV"},
+	{Arabic: 1006, Roman: "MVI"},
+	{Arabic: 798, Roman: "DCCXCVIII"},
+}
 
+func TestRomanNumerals(t *testing.T) {
 	for _, test := range cases {
 		t.Run(fmt.Sprintf("%d gets converted to %q", test.Arabic, test.Roman), func(t *testing.T) {
 			got := ConvertToRoman(test.Arabic)
@@ -87,17 +87,7 @@ func ConvertToRoman(arabic int) string {
 }
 
 func TestConvertingToArabic(t *testing.T) {
-	cases := []struct {
-		Roman  string
-		Arabic int
-	}{
-		{"I", 1},
-		{"II", 2},
-		{"IV", 4},
-		{"V", 5},
-	}
-
-	for _, test := range cases {
+	for _, test := range cases[:10] {
 		t.Run(fmt.Sprintf("%q gets converted to %d", test.Roman, test.Arabic), func(t *testing.T) {
 			got := ConvertToArabic(test.Roman)
 			if got != test.Arabic {
@@ -113,11 +103,8 @@ func ConvertToArabic(roman string) int {
 	for i := 0; i < len(roman); i++ {
 		symbol := roman[i]
 		if couldBeSubtractive(i, symbol, roman) {
-			nextSymbol := roman[i+1]
-			// build the two character string
-			potentialNumber := string([]byte{symbol, nextSymbol})
 			// get the value of the two character string
-			if value := allRomanNumerals.ValueOf(potentialNumber); value != 0 {
+			if value := allRomanNumerals.ValueOf(symbol, roman[i+1]); value != 0 {
 				total += value
 				i++
 			} else {
@@ -125,7 +112,7 @@ func ConvertToArabic(roman string) int {
 			}
 
 		} else {
-			total += allRomanNumerals.ValueOf(string(symbol))
+			total += allRomanNumerals.ValueOf(symbol)
 		}
 
 	}
@@ -138,9 +125,11 @@ func couldBeSubtractive(index int, currentSymbol byte, roman string) bool {
 
 type RomanNumerals []RomanNumeral
 
-func (r RomanNumerals) ValueOf(symbol string) int {
+func (r RomanNumerals) ValueOf(symbols ...byte) int {
+	symbol := string(symbols)
+
 	for _, s := range r {
-		if s.Symbol == symbol {
+		if s.Symbol == string(symbol) {
 			return s.Value
 		}
 	}
